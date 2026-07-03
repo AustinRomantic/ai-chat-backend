@@ -1,0 +1,34 @@
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# Python 编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 环境变量 / 密钥
+.env
+.env.*
+!.env.example
+
+# 测试 / 覆盖率
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 类型检查 / 工具缓存
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# 构建产物
+dist/
+build/
+*.egg-info/
