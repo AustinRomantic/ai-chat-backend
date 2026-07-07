@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="AI Chat Backend",
     description="AI Chat Backend v1",
-    version="0.1.1",
+    version=settings.app_version,
     debug=settings.debug,
 )
 
@@ -66,12 +66,23 @@ def root():
         "env": settings.app_env,
     }
 
+# 获取版本信息接口
+@app.get("/version")
+def version():
+    return {
+        "app_name": settings.app_name,
+        "version": settings.app_version,
+        "env": settings.app_env,
+    }
 
+
+# 健康检查接口
 @app.get("/health")
 def health_check():
     return {
         "status": "ok",
         "app_name": settings.app_name,
+        "app_version": settings.app_version,
         "env": settings.app_env,
         "debug": settings.debug,
         "llm_model": settings.llm_model,

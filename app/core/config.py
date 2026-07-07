@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = Field(default="AI Chat Backend", alias="APP_NAME")
     app_env: str = Field(default="dev", alias="APP_ENV")
+    app_version: str = Field(default="0.1.0", alias="APP_VERSION")
     debug: bool = Field(default=True, alias="DEBUG")
 
     llm_base_url: str = Field(default="", alias="LLM_BASE_URL")
