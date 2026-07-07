@@ -1,7 +1,17 @@
-from fastapi import FastAPI
+import logging
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
 
 from app.api.chat import router as chat_router
 from app.core.config import settings
+from app.core.exceptions import BizException
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
@@ -10,6 +20,43 @@ app = FastAPI(
     version="0.1.1",
     debug=settings.debug,
 )
+
+
+@app.exception_handler(BizException)
+async def biz_exception_handler(request: Request, exc: BizException):
+    logger.warning(
+        "BizException | path=%s | error_code=%s | message=%s",
+        request.url.path,
+        exc.error_code,
+        exc.message,
+    )
+
+    return JSONResponse(
+        status_code=exc.code,
+        content={
+            "success": False,
+            "error_code": exc.error_code,
+            "message": exc.message,
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.exception(
+        "UnhandledException | path=%s | error=%s",
+        request.url.path,
+        str(exc),
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "error_code": "INTERNAL_SERVER_ERROR",
+            "message": "服务暂时不可用，请稍后重试",
+        },
+    )
 
 
 @app.get("/")
