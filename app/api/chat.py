@@ -10,5 +10,6 @@ def chat(request: ChatRequest):
     reply = generate_reply(
         message=request.message,
         system_prompt=request.system_prompt,
+        history=request.history,
     )
     return ChatResponse(reply=reply)

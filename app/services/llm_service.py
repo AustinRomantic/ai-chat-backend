@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, List, Optional
 
 from openai import OpenAI
 
@@ -21,8 +22,8 @@ class LLMService:
             base_url=settings.llm_base_url,
             timeout=settings.llm_timeout,
         )
-    def chat(self, message: str, system_prompt: str | None = None) -> str:
-        messages = []
+    def chat(self, message: str, system_prompt: Optional[str] = None) -> str:
+        messages: List[Dict[str, str]] = []
 
         if system_prompt:
             messages.append({
@@ -34,8 +35,10 @@ class LLMService:
             "role": "user",
             "content": message,
         })
-        print(messages)
 
+        return self.chat_with_messages(messages)
+
+    def chat_with_messages(self, messages: List[Dict[str, str]]) -> str:
         try:
             response = self.client.chat.completions.create(
                 model=settings.llm_model,
