@@ -4,7 +4,6 @@ from openai import OpenAI
 
 from app.core.config import settings
 from app.core.exceptions import BizException
-from app.main import logger
 
 logger = logging.getLogger(__name__)
 
