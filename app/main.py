@@ -1,13 +1,18 @@
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 
 from app.api.chat import router as chat_router
 from app.api.summary import router as summary_router
 from app.core.config import settings
 from app.core.exceptions import BizException
+from app.db.session import get_db
+
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
@@ -91,6 +96,39 @@ def health_check():
         #  我们只返回有没有配置 API Key，不要把真实 API Key 返回给前端。
         "llm_api_key_configured": bool(settings.llm_api_key),
     }
+
+
+@app.get("/health/db")
+def database_health_check(db: Session = Depends(get_db)):
+    try:
+        result = db.execute(
+            text(
+                """
+                SELECT
+                    1 AS database_health,
+                    current_database() AS database_name,
+                    current_user AS database_role
+                """
+            )
+        ).mappings().one()
+
+        return {
+            "status": "ok",
+            "database": result["database_name"],
+            "role": result["database_role"],
+        }
+
+    except SQLAlchemyError as exc:
+        logger.exception(
+            "Database health check failed | error_type=%s",
+            exc.__class__.__name__,
+        )
+
+        raise BizException(
+            message="数据库暂时不可用，请稍后重试",
+            code=503,
+            error_code="DATABASE_UNAVAILABLE",
+        ) from exc
 
 
 app.include_router(chat_router)

@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     llm_max_retries: int = Field(default=2, alias="LLM_MAX_RETRIES")
     llm_retry_interval: float = Field(default=1.0, alias="LLM_RETRY_INTERVAL")
 
+    database_url: str = Field(alias="DATABASE_URL")
+    db_echo: bool = Field(default=False, alias="DB_ECHO")
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
