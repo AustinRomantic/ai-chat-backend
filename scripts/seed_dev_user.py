@@ -1,32 +1,37 @@
-from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import settings
 from app.db.session import SessionLocal
-from app.models.user import User
+from app.repositories.user_repository import (
+    create_user,
+    get_user_by_email,
+)
 
 
 def main() -> None:
     with SessionLocal() as db:
         try:
-            statement = select(User).where(
-                User.email == settings.dev_user_email
-            )
-            user = db.scalar(statement)
-
-            if user is not None:
-                print(f"开发用户已存在：id={user.id}, email={user.email}")
-                return
-
-            user = User(
+            user = get_user_by_email(
+                db=db,
                 email=settings.dev_user_email,
-                display_name=settings.dev_user_display_name,
             )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
 
-            print(f"开发用户创建成功：id={user.id}, email={user.email}")
+            if user is None:
+                user = create_user(
+                    db=db,
+                    email=settings.dev_user_email,
+                    display_name=settings.dev_user_display_name,
+                )
+
+                db.commit()
+
+                print("dev_user_status=created")
+            else:
+                print("dev_user_status=already_exists")
+
+            print(f"dev_user_id={user.id}")
+            print(f"dev_user_email={user.email}")
+            print(f"dev_user_display_name={user.display_name}")
 
         except SQLAlchemyError:
             db.rollback()

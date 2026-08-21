@@ -32,3 +32,35 @@ def list_messages(
 
     items = list(db.scalars(list_statement).all())
     return items, total
+
+
+def create_message(
+    db: Session,
+    conversation_id: uuid.UUID,
+    role: str,
+    content: str,
+) -> Message:
+    message = Message(
+        conversation_id=conversation_id,
+        role=role,
+        content=content,
+    )
+
+    db.add(message)
+    db.flush()
+    db.refresh(message)
+
+    return message
+
+
+def list_messages_by_conversation(
+    db: Session,
+    conversation_id: uuid.UUID,
+) -> list[Message]:
+    statement = (
+        select(Message)
+        .where(Message.conversation_id == conversation_id)
+        .order_by(Message.created_at.asc())
+    )
+
+    return list(db.scalars(statement).all())

@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     dev_user_email: str = Field(default="dev@ai-chat.local", alias="DEV_USER_EMAIL")
     dev_user_display_name: str = Field(default="Development User", alias="DEV_USER_DISPLAY_NAME")
 
+    dev_user_email: str = Field(
+        default="dev@ai-chat.local",
+        alias="DEV_USER_EMAIL",
+    )
+    dev_user_display_name: str = Field(
+        default="开发用户",
+        alias="DEV_USER_DISPLAY_NAME",
+    )
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

@@ -7,11 +7,22 @@ from sqlalchemy.orm import Session
 from app.models.conversation import Conversation
 
 
+def get_conversation_by_id(
+    db: Session,
+    conversation_id: uuid.UUID,
+) -> Conversation | None:
+    statement = select(Conversation).where(
+        Conversation.id == conversation_id
+    )
+
+    return db.scalar(statement)
+
+
 def create_conversation(
     db: Session,
     user_id: uuid.UUID,
     title: str,
-    system_prompt: str | None,
+    system_prompt: str | None = None,
 ) -> Conversation:
     conversation = Conversation(
         user_id=user_id,
@@ -20,6 +31,7 @@ def create_conversation(
     )
     db.add(conversation)
     db.flush()
+    db.refresh(conversation)
     return conversation
 
 
