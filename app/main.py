@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.chat import router as chat_router
 from app.api.summary import router as summary_router
+from app.api.conversation import router as conversation_router
 from app.core.config import settings
 from app.core.exceptions import BizException
 from app.db.session import get_db
@@ -133,3 +134,5 @@ def database_health_check(db: Session = Depends(get_db)):
 
 app.include_router(chat_router)
 app.include_router(summary_router)
+app.include_router(conversation_router)
+
