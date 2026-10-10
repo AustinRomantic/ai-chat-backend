@@ -12,16 +12,21 @@ def list_messages(
     page: int,
     page_size: int,
 ) -> tuple[list[Message], int]:
-    count_statement = select(func.count(Message.id)).where(
+    count_statement = select(
+        func.count(Message.id)
+    ).where(
         Message.conversation_id == conversation_id
     )
+
     total = db.scalar(count_statement) or 0
 
     offset = (page - 1) * page_size
 
     list_statement = (
         select(Message)
-        .where(Message.conversation_id == conversation_id)
+        .where(
+            Message.conversation_id == conversation_id
+        )
         .order_by(
             Message.created_at.asc(),
             Message.id.asc(),
@@ -30,8 +35,37 @@ def list_messages(
         .limit(page_size)
     )
 
-    items = list(db.scalars(list_statement).all())
+    items = list(
+        db.scalars(list_statement).all()
+    )
+
     return items, total
+
+
+def list_recent_messages(
+    db: Session,
+    conversation_id: uuid.UUID,
+    limit: int = 10,
+) -> list[Message]:
+    statement = (
+        select(Message)
+        .where(
+            Message.conversation_id == conversation_id
+        )
+        .order_by(
+            Message.created_at.desc(),
+            Message.id.desc(),
+        )
+        .limit(limit)
+    )
+
+    messages = list(
+        db.scalars(statement).all()
+    )
+
+    messages.reverse()
+
+    return messages
 
 
 def create_message(
@@ -59,8 +93,15 @@ def list_messages_by_conversation(
 ) -> list[Message]:
     statement = (
         select(Message)
-        .where(Message.conversation_id == conversation_id)
-        .order_by(Message.created_at.asc())
+        .where(
+            Message.conversation_id == conversation_id
+        )
+        .order_by(
+            Message.created_at.asc(),
+            Message.id.asc(),
+        )
     )
 
-    return list(db.scalars(statement).all())
+    return list(
+        db.scalars(statement).all()
+    )

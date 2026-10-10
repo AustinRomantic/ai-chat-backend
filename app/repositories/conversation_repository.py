@@ -1,5 +1,6 @@
 import uuid
 from typing import Any
+from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -99,4 +100,11 @@ def delete_conversation(
     conversation: Conversation,
 ) -> None:
     db.delete(conversation)
+    db.flush()
+
+def touch_conversation(
+    db: Session,
+    conversation: Conversation,
+) -> None:
+    conversation.updated_at = datetime.now(timezone.utc)
     db.flush()
